@@ -20,7 +20,7 @@ namespace LiveStatsOverlay
 
         private Rect statsRect;
         private Rect settingsRect = new Rect(320f, 12f, 420f, 420f);
-        private Rect choiceRect = new Rect(0f, 0f, 340f, 10f);
+        private Rect choiceRect = new Rect(0f, 0f, 200f, 10f);
         private Vector2 settingsScroll;
         private Vector2 templateEditScroll;
 
@@ -159,9 +159,9 @@ namespace LiveStatsOverlay
         private void DrawChoiceCounters(int rerolls, int skips, int bans)
         {
             string text =
-                $"<color=#9FB4BA>Rerolls</color> {CountValue(rerolls)}      " +
-                $"<color=#9FB4BA>Skips</color> {CountValue(skips)}      " +
-                $"<color=#9FB4BA>Bans</color> {CountValue(bans)}";
+                $"<color=#9FB4BA>R</color> {CountValue(rerolls)}   " +
+                $"<color=#9FB4BA>S</color> {CountValue(skips)}   " +
+                $"<color=#9FB4BA>B</color> {CountValue(bans)}";
 
             if (ChoicePanel.TryGetActionStackScreenRect(out Rect actionStack))
             {
@@ -375,11 +375,12 @@ namespace LiveStatsOverlay
 
             choiceWindowStyle = new GUIStyle(windowStyle)
             {
-                padding = new RectOffset(12, 12, 10, 10)
+                padding = new RectOffset(8, 8, 6, 6)
             };
 
             choiceTextStyle = new GUIStyle(statsTextStyle)
             {
+                fontSize = Mathf.Max(8, settings.FontSize.Value - 2),
                 alignment = TextAnchor.MiddleCenter,
                 fontStyle = FontStyle.Bold,
                 wordWrap = false
