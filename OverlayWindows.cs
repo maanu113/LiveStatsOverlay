@@ -13,14 +13,12 @@ namespace LiveStatsOverlay
     {
         private const int StatsWindowId = 0xA11CE;
         private const int SettingsWindowId = 0xA11CF;
-        private const int ChoiceWindowId = 0xA11D0;
 
         private readonly OverlaySettings settings;
         private bool settingsVisible;
 
         private Rect statsRect;
         private Rect settingsRect = new Rect(320f, 12f, 420f, 420f);
-        private Rect choiceRect = new Rect(0f, 0f, 200f, 10f);
         private Vector2 settingsScroll;
         private Vector2 templateEditScroll;
 
@@ -29,8 +27,7 @@ namespace LiveStatsOverlay
         private string templateEditBuffer;
 
         private GUIStyle windowStyle;
-        private GUIStyle choiceWindowStyle;
-        private GUIStyle choiceTextStyle;
+        private GUIStyle choiceInlineTextStyle;
         private GUIStyle statsTextStyle;
         private GUIStyle labelStyle;
         private GUIStyle headerStyle;
@@ -153,35 +150,45 @@ namespace LiveStatsOverlay
         }
 
         /// <summary>
-        /// While the "Make a choice" screen is open, shows the remaining
-        /// Rerolls/Skips/Bans centered just above the game's own title bar.
+        /// While the "Make a choice" screen is open, overlays each remaining
+        /// count as a small chip sitting INSIDE its own Reroll/Skip/Ban
+        /// button, immediately in front of the button's label text -
+        /// mirrors the game's own hotkey chip further to the left, so it
+        /// reads as part of the button rather than a separate floating
+        /// element.
         /// </summary>
         private void DrawChoiceCounters(int rerolls, int skips, int bans)
         {
-            string text =
-                $"<color=#9FB4BA>R</color> {CountValue(rerolls)}   " +
-                $"<color=#9FB4BA>S</color> {CountValue(skips)}   " +
-                $"<color=#9FB4BA>B</color> {CountValue(bans)}";
-
-            if (ChoicePanel.TryGetActionStackScreenRect(out Rect actionStack))
-            {
-                // Sit directly on top of the Reroll/Skip/Ban button stack, right
-                // edges flush, so the counts read as part of that action group.
-                choiceRect.x = actionStack.xMax - choiceRect.width;
-                choiceRect.y = actionStack.y - choiceRect.height - 10f;
-            }
-            else
-            {
-                choiceRect.x = (Screen.width - choiceRect.width) / 2f;
-                choiceRect.y = Screen.height * 0.33f - choiceRect.height - 24f;
-            }
-            choiceRect = ClampToScreen(choiceRect);
-            choiceRect = GUILayout.Window(ChoiceWindowId, choiceRect, _ => GUILayout.Label(text, choiceTextStyle), string.Empty, choiceWindowStyle, GUILayout.Width(choiceRect.width));
+            DrawChoiceBadge(ChoicePanel.TryGetRerollButtonScreenRect, rerolls);
+            DrawChoiceBadge(ChoicePanel.TryGetSkipButtonScreenRect, skips);
+            DrawChoiceBadge(ChoicePanel.TryGetBanButtonScreenRect, bans);
         }
 
-        private static string CountValue(int count)
+        private delegate bool TryGetRect(out Rect rect);
+
+        private void DrawChoiceBadge(TryGetRect tryGetButtonRect, int count)
         {
-            return count > 0 ? $"<color=#FFFFFF>{count}</color>" : "<color=#FF6B57>0</color>";
+            if (!tryGetButtonRect(out Rect buttonRect))
+            {
+                return;
+            }
+
+            // No background box - plain colored text sitting right where the
+            // button's own label starts (just past the game's hotkey chip,
+            // which occupies roughly the left quarter of the button), so it
+            // reads as part of the button instead of a separate element
+            // overlapping the hotkey chip.
+            const float width = 40f;
+            const float height = 24f;
+            var badgeRect = new Rect(
+                buttonRect.xMin + buttonRect.width * 0.24f,
+                buttonRect.y + (buttonRect.height - height) / 2f,
+                width, height);
+            badgeRect = ClampToScreen(badgeRect);
+
+            string color = count > 0 ? "#E6C478" : "#FF6B57";
+            string text = $"<color={color}><b>{count}</b></color>";
+            GUI.Label(badgeRect, text, choiceInlineTextStyle);
         }
 
         /// <summary>
@@ -373,16 +380,12 @@ namespace LiveStatsOverlay
                 normal = { textColor = Color.black }
             };
 
-            choiceWindowStyle = new GUIStyle(windowStyle)
+            choiceInlineTextStyle = new GUIStyle(GUI.skin.label)
             {
-                padding = new RectOffset(8, 8, 6, 6)
-            };
-
-            choiceTextStyle = new GUIStyle(statsTextStyle)
-            {
-                fontSize = Mathf.Max(8, settings.FontSize.Value - 2),
-                alignment = TextAnchor.MiddleCenter,
-                fontStyle = FontStyle.Bold,
+                font = uiFont,
+                fontSize = Mathf.Max(9, settings.FontSize.Value + 2),
+                richText = true,
+                alignment = TextAnchor.MiddleLeft,
                 wordWrap = false
             };
 
