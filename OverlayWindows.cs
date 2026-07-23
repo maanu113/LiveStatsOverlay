@@ -115,9 +115,23 @@ namespace LiveStatsOverlay
 
             if (settings.OverlayVisible.Value && MatchObjective.IsInMatch)
             {
+                Rect dpsMeterRect = default;
+                bool dockedToDpsMeter = settings.DockToDpsMeter.Value && DpsMeterHook.TryGetWindowScreenRect(out dpsMeterRect);
+
                 Rect bannerRect = default;
-                isDockedThisFrame = settings.DockToObjectiveBanner.Value && MatchObjective.TryGetObjectiveBannerScreenRect(out bannerRect);
-                if (isDockedThisFrame)
+                isDockedThisFrame = !dockedToDpsMeter && settings.DockToObjectiveBanner.Value && MatchObjective.TryGetObjectiveBannerScreenRect(out bannerRect);
+
+                if (dockedToDpsMeter)
+                {
+                    // Sit directly above the DpsMeter window, matching its width and
+                    // right-aligned with it, so the two read as one stacked panel.
+                    float width = Mathf.Max(240f, dpsMeterRect.width);
+                    statsRect = new Rect(dpsMeterRect.xMax - width, dpsMeterRect.yMin - statsRect.height - 6f, width, statsRect.height);
+
+                    statsRect = ClampToScreen(statsRect);
+                    statsRect = GUILayout.Window(StatsWindowId, statsRect, DrawStatsWindow, "Live Stats", windowStyle, GUILayout.Width(width));
+                }
+                else if (isDockedThisFrame)
                 {
                     // Anchor like a native extension of the objective banner: same
                     // width, right edges flush (the banner sits at the screen's
@@ -233,6 +247,11 @@ namespace LiveStatsOverlay
             settings.OverlayVisible.Value = GUILayout.Toggle(settings.OverlayVisible.Value, "Overlay Visible");
             settings.DockToObjectiveBanner.Value = GUILayout.Toggle(settings.DockToObjectiveBanner.Value,
                 "Dock underneath the \"Find the boss's lair\" objective banner");
+            if (DpsMeterHook.IsPresent)
+            {
+                settings.DockToDpsMeter.Value = GUILayout.Toggle(settings.DockToDpsMeter.Value,
+                    "Dock above the DpsMeter window (takes priority over the objective banner)");
+            }
             settings.ColorizeStatValues.Value = GUILayout.Toggle(settings.ColorizeStatValues.Value,
                 "Colorize values (damage red, HP green, utility teal, kills gold)");
             settings.ShowChoiceCounters.Value = GUILayout.Toggle(settings.ShowChoiceCounters.Value,
@@ -286,9 +305,11 @@ namespace LiveStatsOverlay
             GUILayout.Label($"Toggle overlay: {settings.ToggleOverlayKey.Value}", labelStyle);
             GUILayout.Label($"Toggle this window: {settings.ToggleSettingsKey.Value}", labelStyle);
             GUILayout.Label(
-                settings.DockToObjectiveBanner.Value
-                    ? "Docked underneath the objective banner. Disable docking above to drag it freely."
-                    : "Drag the Live Stats panel's title bar to reposition it.",
+                settings.DockToDpsMeter.Value && DpsMeterHook.IsPresent
+                    ? "Docked above the DpsMeter window. Disable docking above to drag it freely."
+                    : settings.DockToObjectiveBanner.Value
+                        ? "Docked underneath the objective banner. Disable docking above to drag it freely."
+                        : "Drag the Live Stats panel's title bar to reposition it.",
                 labelStyle);
 
             GUILayout.EndScrollView();

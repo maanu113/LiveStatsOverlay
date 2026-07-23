@@ -15,6 +15,7 @@ namespace LiveStatsOverlay
         public readonly ConfigEntry<float> PanelX;
         public readonly ConfigEntry<float> PanelY;
         public readonly ConfigEntry<bool> DockToObjectiveBanner;
+        public readonly ConfigEntry<bool> DockToDpsMeter;
 
         public readonly ConfigEntry<string> Template;
         public readonly ConfigEntry<bool> ColorizeStatValues;
@@ -52,6 +53,8 @@ namespace LiveStatsOverlay
             PanelY = config.Bind("Position", "PanelY", 12f, "Y position (pixels from top) of the overlay panel. Only used when DockToObjectiveBanner is false.");
             DockToObjectiveBanner = config.Bind("Position", "DockToObjectiveBanner", true,
                 "If true, the panel automatically positions itself directly underneath the game's own \"Find the boss's lair\" style objective banner, instead of a fixed/draggable position. If the banner can't be found (e.g. very early in a match), falls back to PanelX/PanelY.");
+            DockToDpsMeter = config.Bind("Position", "DockToDpsMeter", true,
+                "If true and the separate DpsMeter mod is installed and visible, the panel docks directly above the DpsMeter window instead of the objective banner or a fixed position. Has no effect if DpsMeter isn't installed.");
 
             Template = config.Bind("Display", "Template", DefaultTemplate,
                 "The text template shown in the overlay. Use [tokenName] placeholders (e.g. [Health], [MovementSpeed], [kills], [weapons]) " +

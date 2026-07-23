@@ -14,6 +14,7 @@ Docked directly underneath the "Find the boss's lair" objective banner, it shows
 - Values color-coded by category (damage, healing, utility, etc.)
 - Docks natively under the game's own objective banner
 - Rerolls/Skips/Bans counter on the "Make a choice" screen
+- Optional integration with [DpsMeter](https://github.com/antigravity/dpsmeter) (used with permission): if both mods are installed, Live Stats automatically docks directly above the DpsMeter window instead of the objective banner. Fully optional and toggleable in settings - LiveStatsOverlay works exactly as before if DpsMeter isn't installed.
 
 ## Install
 
