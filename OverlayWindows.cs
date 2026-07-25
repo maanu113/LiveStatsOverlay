@@ -331,12 +331,8 @@ namespace LiveStatsOverlay
                 return;
             }
 
-            uiFont = Font.CreateDynamicFontFromOSFont(
+            uiFont = UiFont.CreateSafe(
                 new[] { "Segoe UI", "Segoe UI Semibold", "Arial" }, settings.FontSize.Value);
-            if (uiFont != null)
-            {
-                uiFont.hideFlags = HideFlags.HideAndDontSave;
-            }
 
             // Palette pulled from the game's own ESC-menu stats card and the
             // "Find the boss's lair" objective banner: dark desaturated
