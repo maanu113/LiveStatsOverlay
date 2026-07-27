@@ -23,7 +23,7 @@ Docked directly underneath the "Find the boss's lair" objective banner, it shows
 2. Grab the latest release from the [Releases page](../../releases) and extract the `BepInEx` folder into your Sineus Arena install directory, merging with your existing `BepInEx` folder.
 3. Launch the game through Steam.
 
-Requires [SineusModding.Api](https://github.com/maanu113/SineusModding.Api) (included in the release zip).
+Requires [SineusModding.Api](https://github.com/maanu113/SineusModding.Api) - grab it separately and install it the same way (it's not bundled into this release zip). On Thunderstore it's listed as a dependency and installs automatically.
 
 ## Controls
 
