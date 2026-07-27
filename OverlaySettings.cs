@@ -20,6 +20,7 @@ namespace LiveStatsOverlay
         public readonly ConfigEntry<string> Template;
         public readonly ConfigEntry<bool> ColorizeStatValues;
         public readonly ConfigEntry<bool> ShowWeaponsSection;
+        public readonly ConfigEntry<bool> ShowWeaponStatsSection;
         public readonly ConfigEntry<bool> ShowPassivesSection;
         public readonly ConfigEntry<bool> ShowItemsSection;
         public readonly ConfigEntry<bool> ShowChoiceCounters;
@@ -67,6 +68,9 @@ namespace LiveStatsOverlay
             ShowWeaponsSection = config.Bind("Sections", "ShowWeapons", true, "Show the Weapons line at the bottom of the overlay.");
             ShowPassivesSection = config.Bind("Sections", "ShowPassives", true, "Show the Passives line at the bottom of the overlay.");
             ShowItemsSection = config.Bind("Sections", "ShowItems", true, "Show the Items line at the bottom of the overlay.");
+            ShowWeaponStatsSection = config.Bind("Sections", "ShowWeaponStats", true,
+                "Show a per-weapon DPS (10s rolling) and kill count breakdown at the bottom of the overlay. " +
+                "Kills are attributed heuristically to whichever weapon most recently dealt damage - the game itself doesn't track kills per weapon.");
 
             ShowChoiceCounters = config.Bind("Display", "ShowChoiceCounters", true,
                 "On the \"Make a choice\" buff-selection screen, show how many Rerolls/Skips/Bans you have left above the choices.");

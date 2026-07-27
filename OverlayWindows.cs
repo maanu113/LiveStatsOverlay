@@ -60,6 +60,7 @@ namespace LiveStatsOverlay
             LocalPlayerProgress.EnsureSubscribed();
             EnsureObjectiveSubscribed();
             CombatMeter.Tick();
+            WeaponCombatMeter.Tick();
             StatTokens.ColorizeValues = settings.ColorizeStatValues.Value;
 
             if (Time.unscaledTime >= nextRenderTime)
@@ -79,6 +80,10 @@ namespace LiveStatsOverlay
             if (settings.ShowWeaponsSection.Value)
             {
                 sb.Append("\n<color=#E6C478><b>Weapons</b></color>  <color=#FFFFFF>[weapons]</color>");
+            }
+            if (settings.ShowWeaponStatsSection.Value)
+            {
+                sb.Append("\n<color=#E6C478><b>DPS / Kills per Weapon</b></color>\n<color=#FFFFFF>[weaponStats]</color>");
             }
             if (settings.ShowPassivesSection.Value)
             {
@@ -260,6 +265,7 @@ namespace LiveStatsOverlay
             GUILayout.Space(6f);
             GUILayout.Label("Sections", headerStyle);
             settings.ShowWeaponsSection.Value = GUILayout.Toggle(settings.ShowWeaponsSection.Value, "Weapons");
+            settings.ShowWeaponStatsSection.Value = GUILayout.Toggle(settings.ShowWeaponStatsSection.Value, "DPS / Kills per Weapon");
             settings.ShowPassivesSection.Value = GUILayout.Toggle(settings.ShowPassivesSection.Value, "Passives");
             settings.ShowItemsSection.Value = GUILayout.Toggle(settings.ShowItemsSection.Value, "Items");
 

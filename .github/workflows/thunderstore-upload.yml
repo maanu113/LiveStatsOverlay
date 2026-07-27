@@ -1,0 +1,88 @@
+name: Publish to Thunderstore
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish to Thunderstore (e.g. v3.2.0)"
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        id: tag
+        run: echo "tag=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Derive version from release tag
+        id: ver
+        run: echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+
+      - name: Download release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "${{ steps.tag.outputs.tag }}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --pattern "*.zip" \
+            --output release.zip
+
+      - name: Extract plugin DLL from release zip
+        run: |
+          mkdir -p extracted package/plugins/LiveStatsOverlay
+          unzip -o release.zip -d extracted
+          cp extracted/BepInEx/plugins/LiveStatsOverlay/LiveStatsOverlay.dll package/plugins/LiveStatsOverlay/
+
+      - name: Look up latest SineusModdingApi version on Thunderstore
+        id: apidep
+        run: |
+          API_VERSION=$(curl -sf https://thunderstore.io/api/experimental/package/maanu113/SineusModdingApi/ | jq -r '.latest.version_number')
+          if [ -z "$API_VERSION" ] || [ "$API_VERSION" == "null" ]; then
+            echo "Failed to resolve SineusModdingApi's latest version from Thunderstore" >&2
+            exit 1
+          fi
+          echo "Depending on maanu113-SineusModdingApi-$API_VERSION"
+          echo "api_version=$API_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Write manifest.json
+        run: |
+          cat > package/manifest.json << EOF
+          {
+            "name": "LiveStatsOverlay",
+            "version_number": "${{ steps.ver.outputs.version }}",
+            "website_url": "https://github.com/maanu113/LiveStatsOverlay",
+            "description": "Live, customizable combat stats overlay for Sineus Arena Survivors, styled to match the game's own UI.",
+            "dependencies": [
+              "maanu113-SineusModdingApi-${{ steps.apidep.outputs.api_version }}",
+              "BepInEx-BepInExPack-5.4.2305"
+            ]
+          }
+          EOF
+          cat package/manifest.json
+
+      - name: Copy README and icon
+        run: |
+          cp README.thunderstore.md package/README.md
+          cp icon.png package/icon.png
+
+      - name: Zip Thunderstore package
+        run: cd package && zip -r ../thunderstore-package.zip .
+
+      - name: Install tcli
+        run: dotnet tool install -g tcli
+
+      - name: Publish to Thunderstore
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+        run: |
+          ~/.dotnet/tools/tcli publish \
+            --file thunderstore-package.zip \
+            --token "$TCLI_AUTH_TOKEN"

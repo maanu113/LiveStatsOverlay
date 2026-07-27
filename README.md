@@ -10,6 +10,7 @@ Docked directly underneath the "Find the boss's lair" objective banner, it shows
 - Current/max HP with a color that shifts as you take damage
 - Match timer, kills, total damage, and your hero's live stats
 - Toggleable Weapons / Passives / Items sections
+- Toggleable per-weapon DPS and kill count breakdown
 - Fully customizable `[token]` template with rich text support
 - Values color-coded by category (damage, healing, utility, etc.)
 - Docks natively under the game's own objective banner
