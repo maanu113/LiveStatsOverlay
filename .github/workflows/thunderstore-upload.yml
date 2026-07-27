@@ -76,6 +76,26 @@ jobs:
       - name: Zip Thunderstore package
         run: cd package && zip -r ../thunderstore-package.zip .
 
+      - name: Generate thunderstore.toml
+        run: |
+          cat > thunderstore.toml << EOF
+          [config]
+          schemaVersion = "0.0.1"
+
+          [package]
+          namespace = "maanu113"
+          name = "LiveStatsOverlay"
+          versionNumber = "${{ steps.ver.outputs.version }}"
+          description = "Live, customizable combat stats overlay for Sineus Arena Survivors, styled to match the game's own UI."
+          websiteUrl = "https://github.com/maanu113/LiveStatsOverlay"
+          containsNsfwContent = false
+
+          [publish]
+          repository = "https://thunderstore.io"
+          communities = ["sineus-arena-survivors"]
+          categories = ["mods", "tools"]
+          EOF
+
       - name: Install tcli
         run: dotnet tool install -g tcli
 
@@ -84,5 +104,6 @@ jobs:
           TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
         run: |
           ~/.dotnet/tools/tcli publish \
+            --config-path thunderstore.toml \
             --file thunderstore-package.zip \
             --token "$TCLI_AUTH_TOKEN"
