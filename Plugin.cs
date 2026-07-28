@@ -9,7 +9,7 @@ namespace LiveStatsOverlay
     {
         public const string PluginGuid = "com.community.sineusarena.livestatsoverlay";
         public const string PluginName = "Live Stats Overlay";
-        public const string PluginVersion = "3.2.0";
+        public const string PluginVersion = "3.2.1";
 
         private const string GithubOwner = "maanu113";
         private const string GithubRepo = "LiveStatsOverlay";
